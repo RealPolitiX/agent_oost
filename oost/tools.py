@@ -9,7 +9,6 @@ from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
 
-# api_key = "KJYsKyaNprThsCzRSp7Ai2HS"
 
 def search_results(query, search_func):
     """Obtain search results."""
@@ -21,6 +20,12 @@ def search_results(query, search_func):
     #     return results
     # except:
     #     return []
+
+@tool
+def rank_randomizer(entries:dict, seed:int=42):
+    """Randomize the search result."""
+
+    return
 
 @tool
 def get_search(query:str="", engine:str="ddg", k:int=40, api_key="KJYsKyaNprThsCzRSp7Ai2HS"): # get the top-k search results
@@ -76,8 +81,6 @@ class SearchTools:
                     date_start: most distant date for search.
                     date_end: most recent date for search.
                """
-               
-               api_key = "KJYsKyaNprThsCzRSp7Ai2HS"
 
                if engine == "google":
                     search = GoogleSearchAPIWrapper(k=k)
@@ -153,6 +156,7 @@ def get_search_dated(query:str, date_end:Annotated[str, InjectedToolArg]='12/31/
     Args:
         date_end: most recent date for search.
     """
+    
 
     if engine == "google":
          search = GoogleSearchAPIWrapper(k=k)
@@ -177,35 +181,6 @@ def get_search_dated(query:str, date_end:Annotated[str, InjectedToolArg]='12/31/
         print('date_end is {}'.format(date_end))
     ref_text = tool.run(query, time_period_min=date_start, time_period_max=date_end)
     # print(ref_text)
-    
-    if 'Result' not in ref_text.keys():
-        return ref_text
-    else:
-        return None
-
-
-def get_search_dateset(query:str="", engine:str="sapi-google", k:int=100, date_start:str=None, date_end:str='12/31/2007', api_key="KJYsKyaNprThsCzRSp7Ai2HS"):
-    """Search for the knowledge on the internet between date_start and date_end and return the results.
-    If only date_end was specified, it means all information before date_end is included."""
-
-    if engine == "google":
-         search = GoogleSearchAPIWrapper(k=k)
-    elif engine == "ddg":
-         search = DuckDuckGoSearchAPIWrapper(max_results=k)
-    elif engine == "sapi-google":
-         search = SearchApiAPIWrapper(k=k, engine="google", searchapi_api_key=api_key)
-    elif engine == "sapi-bing":
-         search = SearchApiAPIWrapper(k=k, engine="bing", searchapi_api_key=api_key)
-    elif engine == "sapi-ddg":
-         search = SearchApiAPIWrapper(k=k, engine="duckduckgo", searchapi_api_key=api_key)
-    
-    search_res = partial(search_results, search_func=search, n_query=k)
-    tool = Tool(
-        name="Google Search Snippets",
-        description="Search Google for recent results.",
-        func=search_res,
-    )
-    ref_text = tool.run(query, time_period_min=date_start, time_period_max=date_end)
     
     if 'Result' not in ref_text.keys():
         return ref_text
